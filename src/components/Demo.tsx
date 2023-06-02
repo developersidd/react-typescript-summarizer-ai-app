@@ -1,8 +1,9 @@
 import { useLazyGetSummaryQuery } from "@features/article/articleAPI";
 import React, { FormEvent, useEffect, useState } from 'react';
-import { copy, linkIcon, loader } from "../assets";
+import { copy, linkIcon, tick, trash } from "../assets";
+import ArticleResult from "./ArticleResult";
 
-type Article = {
+export type Article = {
   summary: string,
   url: string,
 }
@@ -15,39 +16,11 @@ const Demo = () => {
     summary: ""
   });
 
+  const [copiedUrl, setCopiedUrl] = useState<string>("");
   const [allArticles, setAllArticles] = useState<Article[]>([]);
-  const [getSummary, { isLoading, error, isError }] = useLazyGetSummaryQuery();
-  console.log("error:", error)
-  // decide what to render in Result part
-  let content = null;
+  const [getSummary, { isLoading, isFetching, error, isError }] = useLazyGetSummaryQuery();
+  console.log("error:", error);
 
-  if (isLoading) {
-    content = (<img src={loader} alt='loader' className='w-20 h-20 object-contain' />)
-  }
-
-  else if (isError && error && 'message' in error) {
-
-    content = (<p className='font-inter font-bold text-black text-center'>
-      Well, that wasn't supposed to happen...
-      <br />
-      <span className='font-satoshi font-normal text-gray-700'>
-        {error.message}
-        Error
-      </span>
-    </p>)
-
-  } else if (!isLoading && !isError && article.summary.length > 0) {
-    content = (<div className='flex flex-col gap-3'>
-      <h2 className='font-satoshi font-bold text-gray-600 text-xl'>
-        Article <span className='blue_gradient'>Summary</span>
-      </h2>
-      <div className='summary_box shadow-md '>
-        <p className='font-inter font-medium text-sm text-gray-700'>
-          {article.summary}
-        </p>
-      </div>
-    </div>)
-  }
 
   // save all articles to the localStorage
   useEffect(() => {
@@ -65,6 +38,37 @@ const Demo = () => {
     }
   }, []);
 
+  // set article from history
+  const setHistoryArticle = async (article: Article) => {
+    localStorage.setItem("articleUrl", JSON.stringify(article.url));
+    if (isError) {
+      const { data } = await getSummary({ articleUrl: article.url });
+      if (data?.summary) {
+        setArticle({ summary: data.summary, url: article.url });
+        return;
+      }
+    }
+    setArticle(article);
+  }
+
+  // handle copy to clipboard
+  const handleCopy = (url: string) => {
+    setCopiedUrl(url);
+    navigator.clipboard.writeText(url);
+    setTimeout(() => {
+      setCopiedUrl("");
+    }, 2000);
+  }
+
+  // handle delete to clipboard
+  const handleDelete = (url: string) => {
+    const filteredArticles = allArticles.filter(item => item.url !== url);
+    setAllArticles(filteredArticles);
+    localStorage.setItem("articles", JSON.stringify(filteredArticles));
+    setArticle({ url: "", summary: "" });
+  }
+
+
   // set user given article url
   const handleSetArticle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setArticle({ ...article, url: e.target.value })
@@ -73,6 +77,8 @@ const Demo = () => {
   // handle form submit
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // prevent fecthing data if already exist
+    if (allArticles.find(item => item.url === article.url)?.url) return;
     const { data } = await getSummary({ articleUrl: article.url });
     if (data?.summary) {
       const newArticle = { ...article, summary: data.summary }
@@ -83,6 +89,7 @@ const Demo = () => {
       localStorage.setItem("articleUrl", JSON.stringify(article.url));
     }
   }
+
 
   return (
     <section className='mt-16 w-full max-w-xl'>
@@ -99,18 +106,20 @@ const Demo = () => {
         {/* Browser URL History */}
         <div className="flex flex-col gap-1 max-h-60 overflow-y-auto shadow-sm">
           {allArticles.map((article, index) => (
-            <div key={`link-${index}`} onClick={() => {
-              setArticle(article)
-              localStorage.setItem("articleUrl", JSON.stringify(article.url));
-            }} className="link_card">
-              <div className="copy_btn">
-                <img src={copy} alt="copy_icon"
-                  className="w-[40%] h-[40%] object-contain"
+            <div key={`link-${index}`} className="link_card">
+              <div className="copy_btn" onClick={() => handleCopy(article.url)}>
+                <img src={copiedUrl === article.url ? tick : copy} alt="copy_icon"
+                  className="w-[55%] h-[55%] object-contain"
                 />
               </div>
-              <p className="flex-1 font-satoshi text-sm truncate text-blue-700">
+              <p onClick={() => setHistoryArticle(article)} className="flex-1 font-satoshi text-sm truncate text-blue-700 cursor-pointer">
                 {article.url}
               </p>
+              <div className="trash_btn" onClick={() => handleDelete(article.url)}>
+                <img src={trash} alt="trash_icon"
+                  className="w-[75%] h-[75%] object-contain"
+                />
+              </div>
             </div>
           ))}
 
@@ -118,11 +127,8 @@ const Demo = () => {
       </div>
       {/*  Display Results */}
 
-      <div className="my-10 max-w-full flex justify-center items-center">
-        {
-          content
-        }
-      </div>
+      <ArticleResult isLoading={isLoading} isFetching={isFetching} isError={isError} error={error} article={article} />
+
 
     </section>
   )

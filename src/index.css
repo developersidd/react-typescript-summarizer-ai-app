@@ -99,13 +99,15 @@
     }
 
     .link_card {
-        @apply p-3 flex justify-start items-center flex-row bg-white border border-gray-200 gap-3 rounded-lg cursor-pointer;
+        @apply p-3 flex justify-start items-center flex-row bg-white border border-gray-200 gap-3 rounded-lg;
     }
 
     .copy_btn {
         @apply w-7 h-7 rounded-full bg-gray-100  backdrop-blur flex justify-center items-center cursor-pointer;
     }
-
+    .trash_btn {
+        @apply w-7 h-7 rounded-full bg-gray-100  backdrop-blur flex justify-center items-center cursor-pointer;
+    }
     .blue_gradient {
         @apply font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent;
     }
