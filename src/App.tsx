@@ -1,7 +1,18 @@
+import Demo from '@components/Demo';
+import Hero from '@components/Hero';
 
 const App = () => {
     return (
-        <div className="bg-teal-400 text-red-500">App Hello </div>
+        <main>
+            <div className="main">
+                <div className='gradient' />
+            </div>
+
+            <div className="app">
+                <Hero />
+                <Demo />
+            </div>
+        </main>
     )
 }
 

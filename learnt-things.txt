@@ -1,0 +1,4 @@
+1. you can import images by destructuring from main folder : import { logo} from "../assets";
+2. apply tailwindcss into .css file.
+3. tailwindcss class max-md means that @media (max-width: 768px) {}: max means that will work for small screens.
+4. tailwindcss class via-red-500 that will work the middle color of a gradient color. 
