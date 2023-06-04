@@ -18,7 +18,6 @@ const Demo = () => {
   const [copiedUrl, setCopiedUrl] = useState<string>("");
   const [allArticles, setAllArticles] = useState<Article[]>([]);
   const [getSummary, { isLoading, isFetching, error, isError }] = useLazyGetSummaryQuery();
-  console.log("error:", error);
 
 
   // save all articles to the localStorage
@@ -41,11 +40,7 @@ const Demo = () => {
   const setHistoryArticle = async (article: Article) => {
     localStorage.setItem("articleUrl", JSON.stringify(article.url));
     if (isError) {
-      const { data } = await getSummary({ articleUrl: article.url });
-      if (data?.summary) {
-        setArticle({ summary: data.summary, url: article.url });
-        return;
-      }
+     location.reload();
     }
     setArticle(article);
   }

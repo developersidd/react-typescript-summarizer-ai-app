@@ -18,7 +18,6 @@ export const articleAPI = apiSlice.injectEndpoints({
         getSummary: builder.query<Summary, { articleUrl: string }>({
             query: (params: { articleUrl: string }) => `summarize?url=${encodeURIComponent(params.articleUrl)}&length=3`,
             transformErrorResponse(error: Error) {
-                //const newError: ErrorData = error.data;
                 return error
             }
         })
