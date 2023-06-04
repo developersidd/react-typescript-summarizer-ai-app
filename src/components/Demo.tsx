@@ -8,7 +8,6 @@ export type Article = {
   url: string,
 }
 
-
 const Demo = () => {
 
   const [article, setArticle] = useState<Article>({

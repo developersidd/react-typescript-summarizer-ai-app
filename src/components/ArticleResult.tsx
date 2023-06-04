@@ -1,11 +1,11 @@
 import { loader } from '@/assets';
-import { Error } from '@/redux/Features/article/articleAPI';
+import type { Error } from './../redux/Features/article/articleAPI';
 import { Article } from './Demo';
 
 type ArticleResultProps = {
     isLoading: boolean,
     isFetching: boolean,
-    error: Error,
+    error: Error | any,
     isError: boolean,
     article: Article
 };
